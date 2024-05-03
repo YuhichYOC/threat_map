@@ -1,0 +1,46 @@
+{% load static %}
+{% load escape %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>危険顧客マップ</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid vh-100 d-flex flex-column">
+    <div class="row g-0">
+        <h1 class="col">危険顧客マップ</h1>
+    </div>
+    <div class="row g-0" style="flex: 1">
+        <div id="map" class="d-inline-block"></div>
+    </div>
+</div>
+<script type="text/javascript" src="{% static 'gmap.js' %}"></script>
+<script type="text/javascript">
+    function prepare() {
+        const op = new GmapOperator();
+        op.init([
+{% for item in info %}
+            {id: {{ item.id }}, lat: {{ item.position.lat }}, lng: {{ item.position.lng }},
+                name: '{{ item.name|escape_backslash }}', threat_info: [
+    {% for threat_info in item.threatinfo_set.all %}
+                    {id: {{ threat_info.id }}, rate: {{ threat_info.rate }},
+                        text: '{{ threat_info.text|escape_backslash|linebreaksbr }}', peer_review: [
+        {% for peer_review in threat_info.peerreview_set.all %}
+                        {rate: {{ peer_review.rate }},
+                            text: '{{ peer_review.text|escape_backslash|linebreaksbr }}',},
+        {% endfor %}
+                    ],},
+    {% endfor %}
+            ],},
+{% endfor %}
+        ])
+    }
+</script>
+<script type="text/javascript" src="{% url 'get_gmap_js' %}" defer></script>
+<form action="" id="this_form_is_dummy_to_get_cookie_with_csrf_token" method="post" style="visibility: hidden">
+    {% csrf_token %}
+</form>
+</body>
+</html>

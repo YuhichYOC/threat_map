@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ピアレビュー入力</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<form action="{% url 'post_add_peer_review' %}" method="post" class="container">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="fieldWrapper mb-3">
+        {{ form.rate.errors }}
+        <label for="{{ form.rate.id_for_label }}" class="form-label">評価</label>
+        {{ form.rate }}
+    </div>
+    <div class="fieldWrapper mb-3">
+        {{ form.text.errors }}
+        <label for="{{ form.text.id_for_label }}" class="form-label">詳細</label>
+        {{ form.text }}
+    </div>
+    <div class="mb-3">
+        <input type="submit" class="btn btn-primary">
+    </div>
+    <input type="hidden" name="id" value="{{ id }}">
+</form>
+</body>
+</html>
