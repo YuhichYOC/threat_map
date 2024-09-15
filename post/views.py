@@ -16,14 +16,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+from django.core.handlers.wsgi import WSGIRequest
 from django.shortcuts import render, HttpResponseRedirect
 
 from map.models import Item, Position, ThreatInfo, PeerReview
 from . import forms
 
 
+def any_post_param_is_none(req: WSGIRequest, names: list) -> bool:
+    return any(req.POST.get(n) is None for n in names)
+
+
 def new_threat_view(request):
+    if any_post_param_is_none(request, ['lat', 'lng']):
+        return HttpResponseRedirect('/map/')
     return render(request, 'new_threat_view.html', {
         'lat': request.POST.get('lat'),
         'lng': request.POST.get('lng'),
@@ -32,6 +38,8 @@ def new_threat_view(request):
 
 
 def post_new_threat(request):
+    if any_post_param_is_none(request, ['name', 'lat', 'lng', 'rate', 'text']):
+        return HttpResponseRedirect('/map/')
     item = Item.create(request.POST.get('name'))
     item.save()
     pos = Position.create(item, request.POST.get('lat'), request.POST.get('lng'))
@@ -42,6 +50,8 @@ def post_new_threat(request):
 
 
 def add_threat_view(request):
+    if any_post_param_is_none(request, ['id']):
+        return HttpResponseRedirect('/map/')
     return render(request, 'add_threat_view.html', {
         'id': request.POST.get('id'),
         'form': forms.AddThreatInfoPost(),
@@ -49,6 +59,8 @@ def add_threat_view(request):
 
 
 def post_add_threat(request):
+    if any_post_param_is_none(request, ['id', 'rate', 'text']):
+        return HttpResponseRedirect('/map/')
     item = Item.objects.get(id__exact=request.POST.get('id'))
     threat_info = ThreatInfo.create(item, request.POST.get('rate'), request.POST.get('text'))
     threat_info.save()
@@ -56,6 +68,8 @@ def post_add_threat(request):
 
 
 def add_peer_review_view(request):
+    if any_post_param_is_none(request, ['id']):
+        return HttpResponseRedirect('/map/')
     return render(request, 'add_peer_review_view.html', {
         'id': request.POST.get('id'),
         'form': forms.AddPeerReviewPost(),
@@ -63,6 +77,8 @@ def add_peer_review_view(request):
 
 
 def post_add_peer_review(request):
+    if any_post_param_is_none(request, ['id', 'rate', 'text']):
+        return HttpResponseRedirect('/map/')
     threat_info = ThreatInfo.objects.get(id__exact=request.POST.get('id'))
     peer_review = PeerReview.create(threat_info, request.POST.get('rate'), request.POST.get('text'))
     peer_review.save()
