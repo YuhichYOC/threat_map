@@ -24,7 +24,9 @@ from django.shortcuts import render
 
 from .models import Item
 
-YOUR_MAPS_API_KEY = ""
+import environ
+env = environ.Env()
+env.read_env('.env')
 
 
 def index(request):
@@ -36,7 +38,7 @@ def index(request):
 def get_gmap_js(request):
     url = ''.join([
         'https://maps.googleapis.com/maps/api/js?key=',
-        YOUR_MAPS_API_KEY,
+        env('YOUR_MAPS_API_KEY'),
         '&language=ja&v=weekly&libraries=marker',
         '&callback=prepare',
     ])
